@@ -113,45 +113,51 @@ fn main() {
 
     if let Some(filter_matches) = matches.subcommand_matches("filter") {
         if filter_matches.is_present("blur") {
-            let amt = filter_matches.value_of("blur").unwrap().parse::<f32>().unwrap();
-            blur(infile.to_owned(), outfile.to_owned(), amt);
+            if let Some(blur_amt) = filter_matches.value_of("blur") {
+                blur(&infile, &outfile, blur_amt.parse().unwrap());
+            }
         }
         if filter_matches.is_present("brighten") {
-            let amt = filter_matches.value_of("brighten").unwrap().parse::<i32>().unwrap();
-            brighten(infile.to_owned(), outfile.to_owned(), amt);
+            if let Some(blur_amt) = filter_matches.value_of("brighten") {
+                brighten(&infile, &outfile, blur_amt.parse().unwrap());
+            }
         }
         if filter_matches.is_present("grayscale") {
-            grayscale(infile.to_owned(), outfile.to_owned());
+            grayscale(&infile, &outfile);
         }
         if filter_matches.is_present("crop") {
             let vals: Vec<&str> = filter_matches.values_of("crop").unwrap().collect();
-            let x = vals[0].parse::<u32>().unwrap();
-            let y = vals[0].parse::<u32>().unwrap();
-            let width = vals[0].parse::<u32>().unwrap();
-            let height = vals[0].parse::<u32>().unwrap();
-            crop(infile.to_owned(), outfile.to_owned(), x, y, width, height);
+            crop(
+                &infile,
+                &outfile,
+                vals[0].parse().unwrap(),
+                vals[1].parse().unwrap(),
+                vals[2].parse().unwrap(),
+                vals[3].parse().unwrap()
+            );
         }
         if filter_matches.is_present("rotate") {
-            let angle = filter_matches.value_of("rotate").unwrap().parse::<u32>().unwrap();
-            rotate(infile.to_owned(), outfile.to_owned(), angle);
+            if let Some(angle) = filter_matches.value_of("rotate") {
+                rotate(&infile, &outfile, angle.parse().unwrap());
+            }
         }
         if filter_matches.is_present("invert") {
-            invert(infile.to_owned(), outfile.to_owned());
+            invert(&infile, &outfile);
         }
         if filter_matches.is_present("generate") {
             let vals: Vec<&str> = filter_matches.values_of("generate").unwrap().collect();
-            let r = vals[0].parse::<u8>().unwrap();
-            let g = vals[1].parse::<u8>().unwrap();
-            let b = vals[2].parse::<u8>().unwrap();
-            generate(outfile.to_owned(), r, g, b);
+            let r = vals[0].parse().unwrap();
+            let g = vals[1].parse().unwrap();
+            let b = vals[2].parse().unwrap();
+            generate(&outfile, r, g, b);
         }
         if filter_matches.is_present("fractal") {
-            fractal(outfile.to_owned());
+            fractal(&outfile);
         }
     }
 }
 
-fn blur(infile: String, outfile: String, amt: f32) {
+fn blur(infile: &String, outfile: &String, amt: f32) {
     // Here's how you open an existing image file
     let img = image::open(infile).expect("Failed to open INFILE.");
 
@@ -164,7 +170,7 @@ fn blur(infile: String, outfile: String, amt: f32) {
     img2.save(outfile).expect("Failed writing OUTFILE.");
 }
 
-fn brighten(infile: String, outfile: String, amt: i32) {
+fn brighten(infile: &String, outfile: &String, amt: i32) {
     let img = image::open(infile).expect("Failed to open INFILE.");
 
     // .brighten() takes one argument, an i32.  Positive numbers brighten the
@@ -176,7 +182,7 @@ fn brighten(infile: String, outfile: String, amt: i32) {
     img2.save(outfile).expect("Failed writing OUTFILE.");
 }
 
-fn crop(infile: String, outfile: String, x: u32, y: u32, width: u32, height: u32) {
+fn crop(infile: &String, outfile: &String, x: u32, y: u32, width: u32, height: u32) {
     let mut img = image::open(infile).expect("Failed to open INFILE.");
 
     // .crop() takes four arguments: x: u32, y: u32, width: u32, height: u32
@@ -189,7 +195,7 @@ fn crop(infile: String, outfile: String, x: u32, y: u32, width: u32, height: u32
     img2.save(outfile).expect("Failed writing OUTFILE.");
 }
 
-fn rotate(infile: String, outfile: String, angle: u32) {
+fn rotate(infile: &String, outfile: &String, angle: u32) {
     let img = image::open(infile).expect("Failed to open INFILE.");
 
     // There are 3 rotate functions to choose from (all clockwise):
@@ -211,7 +217,7 @@ fn rotate(infile: String, outfile: String, angle: u32) {
     img2.save(outfile).expect("Failed writing OUTFILE.");
 }
 
-fn invert(infile: String, outfile: String) {
+fn invert(infile: &String, outfile: &String) {
     let mut img = image::open(infile).expect("Failed to open INFILE.");
 
     // .invert() takes no arguments and converts the image in-place, so you
@@ -221,7 +227,7 @@ fn invert(infile: String, outfile: String) {
     img.save(outfile).expect("Failed writing OUTFILE.");
 }
 
-fn grayscale(infile: String, outfile: String) {
+fn grayscale(infile: &String, outfile: &String) {
     let img = image::open(infile).expect("Failed to open INFILE.");
 
     // .grayscale() takes no arguments. It returns a new image.
@@ -230,7 +236,7 @@ fn grayscale(infile: String, outfile: String) {
     img2.save(outfile).expect("Failed writing OUTFILE.");
 }
 
-fn generate(outfile: String, r: u8, g: u8, b: u8) {
+fn generate(outfile: &String, r: u8, g: u8, b: u8) {
     let width = 800;
     let height = 800;
 
@@ -251,7 +257,7 @@ fn generate(outfile: String, r: u8, g: u8, b: u8) {
 }
 
 // This code was adapted from https://github.com/PistonDevelopers/image
-fn fractal(outfile: String) {
+fn fractal(outfile: &String) {
     let width = 800;
     let height = 800;
 
@@ -292,10 +298,10 @@ fn fractal(outfile: String) {
 //
 // For example, if you run:
 //
-//   cargo run infile.png outfile.png blur 2.5 invert rotate 180 brighten 10
+//   cargo run &infile.&ng outfile.png blur 2.5 invert rotate 180 brighten 10
 //
 // ...then your program would:
-// - read infile.png
+// - read &infile.&ng
 // - apply a blur of 2.5
 // - invert the colors
 // - rotate the image 180 degrees clockwise
