@@ -47,6 +47,27 @@ fn main() {
             .required(true)
             .takes_value(true))
         .subcommand(
+            App::new("transform")
+            .about("Apply transformations to input file")
+            .arg(
+                Arg::with_name("crop")
+                .help("Crop input image to given dimensions (x, y, w, h)")
+                .long("crop")
+                .takes_value(true)
+                .multiple(true)
+                .number_of_values(4)
+                .value_names(&["x", "y", "width", "height"])
+            )
+            .arg(
+                Arg::with_name("rotate")
+                .help("Rotate image")
+                .long("rotate")
+                .possible_values(&["90","180","270"])
+                .takes_value(true)
+                .value_name("angle")
+            )
+        )
+        .subcommand(
             App::new("filter")
                 .about("Apply a range of filters to input file")
                 .author("0xEval")
@@ -70,23 +91,6 @@ fn main() {
                     .long("grayscale")
                 )
                 .arg(
-                    Arg::with_name("crop")
-                    .help("Crop input image to given dimensions (x, y, w, h)")
-                    .long("crop")
-                    .takes_value(true)
-                    .multiple(true)
-                    .number_of_values(4)
-                    .value_names(&["x", "y", "width", "height"])
-                )
-                .arg(
-                    Arg::with_name("rotate")
-                    .help("Rotate image")
-                    .long("rotate")
-                    .possible_values(&["90","180","270"])
-                    .takes_value(true)
-                    .value_name("angle")
-                )
-                .arg(
                     Arg::with_name("invert")
                     .help("Invert the colors of input")
                     .long("invert")
@@ -105,7 +109,7 @@ fn main() {
                     .help("Generate a fractal and save to output file")
                     .long("fractal")
                 )
-        ) 
+        )
         .get_matches();
 
     let infile = String::from(matches.value_of("input").unwrap());
@@ -298,10 +302,10 @@ fn fractal(outfile: &String) {
 //
 // For example, if you run:
 //
-//   cargo run &infile.&ng outfile.png blur 2.5 invert rotate 180 brighten 10
+//   cargo run infile.png outfile.png blur 2.5 invert rotate 180 brighten 10
 //
 // ...then your program would:
-// - read &infile.&ng
+// - read infile.png
 // - apply a blur of 2.5
 // - invert the colors
 // - rotate the image 180 degrees clockwise
