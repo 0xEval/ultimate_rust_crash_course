@@ -130,15 +130,17 @@ fn main() {
             grayscale(&infile, &outfile);
         }
         if filter_matches.is_present("crop") {
-            let vals: Vec<&str> = filter_matches.values_of("crop").unwrap().collect();
-            crop(
-                &infile,
-                &outfile,
-                vals[0].parse().unwrap(),
-                vals[1].parse().unwrap(),
-                vals[2].parse().unwrap(),
-                vals[3].parse().unwrap()
-            );
+            if let Some(iter) = filter_matches.values_of("crop") {
+                let vals: Vec<&str> = iter.collect();
+                crop(
+                    &infile,
+                    &outfile,
+                    vals[0].parse().unwrap(),
+                    vals[1].parse().unwrap(),
+                    vals[2].parse().unwrap(),
+                    vals[3].parse().unwrap()
+                );
+            }
         }
         if filter_matches.is_present("rotate") {
             if let Some(angle) = filter_matches.value_of("rotate") {
